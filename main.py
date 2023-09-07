@@ -3,6 +3,8 @@ import sys
 import requests
 
 from settings import TOKEN
+from log import logger
+
 
 
 class YaUploader:
@@ -12,6 +14,7 @@ class YaUploader:
     def __init__(self, token: str):
         self.token = token
 
+    @logger('upload.log')
     def upload(self, file_path: str) -> None:
         
         headers = {'Authorization': f'OAuth {self.token}'}
@@ -19,8 +22,9 @@ class YaUploader:
         data = response.json()
         if response.status_code != requests.codes.ok:
             print(data)
-            return
-        requests.put(data['href'], headers=headers, files={'file': open(file_path, 'rb')})
+            return response.status_code
+        response = requests.put(data['href'], headers=headers, files={'file': open(file_path, 'rb')})
+        return response.status_code
 
 
 if __name__ == '__main__':
